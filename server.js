@@ -12,6 +12,13 @@ const port = process.env.PORT || 3000;
 const users = require("./src/models/users")
 const bcrypt = require("bcrypt");
 const socket = require("socket.io")
+var bodyParser = require('body-parser');
+app.use(bodyParser.json({ limit: '50mb' }));
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
+
+app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: '50mb' }))
+
 
 require('./src/config/database')
 // const user_routes = require('./src/user/users.routes');
@@ -103,10 +110,10 @@ app.post('/Get_Messages', async (req, res) => {
           Array.push(messages_send)
           console.log("---------+++++---------")
         })
-        
+
         updatedDocument.filter((item) => {
           item.message.send_body.filter((value) => { (value.Enduser_id === req.body._id) ? (value.receiver = true) && (value.sender = false) : "" })
-        
+
         })
         const Array_1 = Array.flat().sort((a, b) => {
           const dateA = new Date(a.date);
@@ -251,14 +258,47 @@ app.post("/login", (request, response) => {
     });
 });
 
-app.post('/', async (req, res) => {
-  const { email, password } = req.body;
-  try {
-    const newUser = await users.create({ email, password })
-    res.json(newUser)
-  } catch (err) { res.status(500).send(err) }
+app.post("/DisplayImage", (request, response) => {
+  // console.log("-------" + JSON.stringify(request.body.message.send_body[0]))
+  // const filter = { _id: request.body._id };
+  // const update = { $push: { "message.send_body": request.body.message.send_body[0] } };
 
-})
+  users.findOne({ _id: request.body._id }).then((updatedDocument) => {
+    if (updatedDocument) {
+      const Image = updatedDocument.Image
+      response.send({ Image });
+    } else {
+      response.status(404).send({ message: "/message No document found with the specified email" });
+    }
+  })
+    .catch((error) => {
+      response.status(500).send({ message: "An error occurred while updating the document", error });
+    });
+});
+
+app.post("/UpdateImage", (request, response) => {
+
+  const filter = { _id: request.body._id };
+  const update = { $set: { "Image": request.body.Image } };
+
+  console.log(request.body._id)
+
+  users.findOneAndUpdate(filter, update).then((updatedDocument) => {
+    if (updatedDocument) {
+      response.send("Successfully updated");
+      console.log(updatedDocument)
+      // let Image = updatedDocument.body.Image
+
+    } else {
+      console.log("error 404")
+      response.status(404).send({ message: "/message No document found with the specified email" });
+    }
+  })
+    .catch((error) => {
+      console.log("error in Catch")
+      response.status(500).send({ message: "An error occurred while updating the document", error });
+    });
+});
 
 // app.use('/User', user_routes)
 
