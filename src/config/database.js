@@ -17,7 +17,7 @@ const mongoose = require('mongoose');
 // const connection = mongoose.connect(uri, connectionParams).then(() => console.log('connected to cloud atlas')).catch((err) => console.log("!=FAILED"));
 
 // module.exports = connection;
-mongoose.connect('mongodb+srv://saffiullah1911:123@cluster0.zzrq5.mongodb.net/?retryWrites=true&w=majority', {
+mongoose.connect('Your Link', {
   useNewUrlParser: true,
   useUnifiedTopology: true
 }).then(() => console.warn("DB Successfully Connected !!")).catch((err) => console.warn(err));
